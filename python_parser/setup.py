@@ -7,4 +7,9 @@ setup(name='organizador_parser',
       author='Alejandro Pernin',
       author_email='apernin@fi.uba.ar',
       packages=find_packages(exclude=('tests', 'tests.*')),
-)
+      entry_points={
+          'console_scripts': [
+              'py-parser = organizador_parser.parser:main'
+          ]
+      },
+      )

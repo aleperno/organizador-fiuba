@@ -48,8 +48,9 @@ TEMPLATE_CLASE = {
 def parse_args():
     parser = ArgumentParser()
     parser.add_argument('--csv', required=True, help='Archivo a Parsear')
-    parser.add_argument('-s', --'sep', type=str, default=';', help="Separador del CSV")
-    parser.add_argument('--salida', help="Json de Salida", default='horarios.json')
+    parser.add_argument('-s', '--sep', type=str, default=';', help="Separador del CSV")
+    parser.add_argument('--carreras', required=True, help="Json que mapea carreras con materias")
+    parser.add_argument('--output', help="Json de Salida", default='horarios.json')
     return parser.parse_args()
 
 
@@ -57,7 +58,6 @@ class ParserHorarios(object):
     """
     Clase que se encarga de parsear los horarios
     """
-    json_carreras = "/tmp/carreras.json"
 
     mapping_clase_keys = {
         'clase': 'tipo',
@@ -83,17 +83,17 @@ class ParserHorarios(object):
         'Petróleo'
     ]
 
-    def __init__(self):
+    def __init__(self, carreras, output):
         self.clases = []
         self.materias = {}
-        self.carreras = self.load_carreras()
         self.colors = ["#FF5E5E", "#FF8F40", "#FFF45E", "#94FF52", "#7CD9D4", "#A876F5", "#FFA1F2", "#BF6E45", "#3ABA7A",
                   "#275BCC", "#82F5B4", "#B1B8C4", "#BA3A7A"]
         self.colors_i = 0
+        self.json_output = output
+        self.carreras = self.load_carreras(carreras)
 
-    @classmethod
-    def load_carreras(cls):
-        with open(cls.json_carreras) as fp:
+    def load_carreras(self, json_carreras):
+        with open(json_carreras) as fp:
             carreras = json.load(fp)
         return carreras
 
@@ -270,18 +270,15 @@ class ParserHorarios(object):
             'materias': materias
         }
 
-        with open("/tmp/2Q2019.json", 'w') as fp:
+        with open(self.json_output, 'w') as fp:
             json.dump(data, fp)
-
-
-def parsear_horarios(csv, salida, sep):
-    pass
-
 
 
 def main():
     args = parse_args()
-    parsear_horarios(**vars(args))
+    parser = ParserHorarios(carreras=args.carreras, output=args.output)
+    parser.parse_csv(csv_file=args.csv, sep=args.sep)
+    parser.dump_data()
 
 
 if __name__ == '__main__':
